@@ -37,3 +37,12 @@ vignettes/*.pdf
 
 # R Environment Variables
 .Renviron
+
+/.quarto/
+
+*.tex
+*.pdf
+doc/
+QTD*
+_exte*
+*.Rproj
