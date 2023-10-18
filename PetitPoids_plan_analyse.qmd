@@ -14,13 +14,13 @@ library("kableExtra")
 
 Le risque \textalpha{} retenu sera de 0,05 & la puissance de 0,8.
 
-Vu le faible nombre de cas on ne fera pas d'hypothèse de normalité & les variables numériques seront présentées par leur médiane avec les quartiles & comparées par le test non paramétrique de Wilcoxon. Les variables discrètes seront présentés en nombre avec le pourcentage & comparées par le test du \textchi$^2$ de Spearman sous réserve d'un effectif suffisant. À défaut le test exact de Fischer sera utilisé. Des graphiques seront réalisés pour les résultats importants (package `ggplot2` [@ggplot]).
+Vu le faible nombre de cas on ne fera pas d'hypothèse de normalité. Les variables numériques seront présentées par leur médiane avec les quartiles & comparées grâce au test non paramétrique de Wilcoxon. Les variables discrètes seront présentés en nombre avec le pourcentage. L'intervalle de confiance (à 95 %) sera calculé par bootstrap (package `boot` [@boot]). Le test du \textchi$^2$ de Spearman sera utilisé sous réserve d'un effectif suffisant, à défaut le test exact de Fischer. Des graphiques seront réalisés pour les résultats importants (package `ggplot2` [@ggplot]).
 
 L'étude comporte deux volets : une enquête de suivi auprès des parents complétée par une analyse du dossier médical & une enquête sur les pratiques courantes auprès des médecins de néonatologie d'Île de France.
 
 ## Taille de l'échantillon
 
-Le critère principal est : *Observer le devenir à court terme (réhosptalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital NOVO (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.* 
+Le critère principal est : *Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital NOVO (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.* 
 
 Il s'agit d'une étude observationnelle simple pour lesquelles il est difficile de préciser un nombre de cas nécessaires en l'absence de test statistique. Néanmoins on peut estimer à environ quarante cas le strict minimum nécessaire pour avoir un échantillon utilisable s'il n'y a pas trop de données manquantes. 
 
@@ -49,6 +49,8 @@ Cette analyse ne pourra être réalisée qu'après transformation des variables 
 
 # Objectif principal
 
+*Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital NOVO (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.*
+
 Le nombre d'enfants ayant été réhospitalisés durant le mois après sortie de l'hôpital sera présenté en nombre & pourcentage avec son intervalle de confiance. 
  
 Une analyse simple sera réalisée pour rechercher d'éventuels facteurs pronostics en utilisant les données médicales (terme, poids à la naissance\dots)
@@ -64,12 +66,12 @@ Un modèle de régression logistique multinomiale sera employé (package `VGAM` 
 
 *Mesure du Z-score pour le poids, la taille & le périmètre crânien, mesuré aux visites systématiques réalisées à 2 mois, 4 mois et 11 mois des nouveau-nés sortis de néonatologie à moins de 2 kilos.*
 
-La médiane avec les quartiles sera présentée pour chacune des trois mesures pour chaque consultation. Une représentation graphique (diagramme en box-plot ou violon-plot) sera réalisée ainsi que des graphiques d'évolution avec les droites de régression \marginpar{\small Pour la visite à onze mois il risque d'y avoir de nombreuses données manquantes ce qui limiterait la valeur des régressions.}. Vu le faible nombre de cas un diagramme *en fagots* pourra être tracé.
+La médiane avec les quartiles sera présentée pour chacune des trois mesures pour chaque consultation. Une représentation graphique (diagramme en box-plot ou violon-plot) sera réalisée ainsi que des graphiques d'évolution avec les droites de régression \footnote{Pour la visite à onze mois il risque d'y avoir de nombreuses données manquantes ce qui limiterait la qualité du modèle.}. Vu le faible nombre de cas un diagramme *en fagots* pourra être tracé.
 
-Ces mesures seront considérées comme *normales* si comprises entre -2 & 2 DS. Le nombre & le pourcentage de mesures normales seront présentés pour chaque consultation. Des diagrammes de flux pour chaque mesure pourront être dessinés.  
+Ces mesures seront considérées comme *normales* si comprises entre -2 & 2 DS. Le nombre & le pourcentage de mesures normales seront présentés pour chaque consultation. Des diagrammes de flux (diagramme de Sankey -- package `networkD3` [@reseau]) pour chaque mesure pourront être dessinés.  
 
 
-## Objectifs 4,5,6,7
+## Objectifs 4, 5, 6, 7
 
 Ces critères purement descriptifs issus du questionnaire *parents* reprennent les résultats présentés dans les tableaux descriptifs. Des graphiques pourront être tracés pour présenter ces résultats plus spécifiquement.
 
