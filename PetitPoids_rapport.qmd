@@ -1,22 +1,72 @@
 ---
-title: ""
+title: "Petit Poids"
+subtitle: "Rapport Statistique - V 1.0"
+format: html
+cache: true
+---
+
+```{r}
+#| label: setup
+
+rm(list = ls())
+tt <- readRDS("data/escrime.rds")
+bn <- readRDS("data/bn.rds")
+bn <- bn$Nom
+expx <- TRUE
+classeur <- "escrime2.xls"
+if (expx){system(paste0("rm -f ",classeur))}
+#
+library(baseph)
+library(janitor)
+library(tidyverse)
+library(gtsummary)
+library(kableExtra)
+library(lubridate)
+library(kableExtra)
+library(forestmodel)
+library(labelled)
+library(epiDisplay)
+library(visdat)
+library(GGally)
+library(ggridges)
+library(colorspace)
+#
+theme_gtsummary_language(language = "fr", decimal.mark = ",")
+options(OutDec = ",")
+```
+
+```{r}
+#| label: setup
+
+rm(list = ls())
+tt <- readRDS("data/escrime.rds")
+bn <- readRDS("data/bn.rds")
+bn <- bn$Nom
+expx <- TRUE
+classeur <- "escrime2.xls"
+if (expx){system(paste0("rm -f ",classeur))}
+#
+library(baseph)
+library(janitor)
+library(tidyverse)
+library(gtsummary)
+library(kableExtra)
+library(lubridate)
+library(kableExtra)
+library(forestmodel)
+library(labelled)
+library(epiDisplay)
+library(visdat)
+library(GGally)
+library(ggridges)
+library(colorspace)
+#
+theme_gtsummary_language(language = "fr", decimal.mark = ",")
+options(OutDec = ",")"
 subtitle: "Rapport"
 thanks: ""
 author: "Philippe MICHEL"
-format: pdf
-pdf-engine: lualatex
-documentclass: scrartcl
-mainfont: GillSans
-mainfontoptions:
-- Ligatures = Common
-- Ligatures = Rare
-sansfont: Source Sans Pro
-monofont: Source Sans Pro
-colorlinks: true
-fontsize: 11pt
-papersize: a4
-lang: fr
-fig-align: center
+format: html
 toc: true
 lof: true
 lot: false
@@ -26,7 +76,6 @@ license: MIT
 always_allow_html: true
 ---
 
-```{r setup, include=FALSE}
 knitr::opts_chunk$set(echo = FALSE, warning = FALSE, message = FALSE, cache = FALSE) 
 ```
 
@@ -40,18 +89,12 @@ library(kableExtra)
 library(forestmodel)
 ```
 
-
 ## Description de la population
 
-
-L'échantillon comporte `r ` cas.
-
-
-
-
+L'échantillon comporte `r` cas.
 
 ## Technique
-Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance ont été calculés par bootstrap.
-Pour le critère principal la comparaison des deux groupes a été réalisée par un test de Wilcoxon sur séries appariées. La recherche de facteurs prédictifs a été réalisée par des test ANOVA. Vu le grand nombre de tests la limite de significabilité a été définie à 0,01.
+
+Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance ont été calculés par bootstrap. Pour le critère principal la comparaison des deux groupes a été réalisée par un test de Wilcoxon sur séries appariées. La recherche de facteurs prédictifs a été réalisée par des test ANOVA. Vu le grand nombre de tests la limite de significabilité a été définie à 0,01.
 
 L'analyse statistique a été réalisée grâce au logiciel **R**[@rstat] & à divers packages en particulier `tidyverse`[@tidy], `FactoMineR`[@facto] & `epiDisplay`[@epid].
