@@ -1,50 +1,10 @@
 ---
-title: "Petit Poids"
 subtitle: "Rapport Statistique - V 1.0"
-lang: fr
-language:
-  title-block-author-single: "Auteur"
-author:
-  - name: "D<sup>r</sup> Philippe MICHEL"
-    orcid: "0000-0003-2392-7186"
-    email: "philippe.michel@ght-novo.fr"
-    role: "Statisticien"
-    affiliations:
-      name: "USRC - H\u00f4pital NOVO"
-      city: Pontoise
-      department: "Unit\u00e9 de Soutien à la Recherche Clinique"
-title-block-banner: true
-format:
-  html:
-    embed-resources: true
-    theme: minty
-    code-fold: true
-    html-math-method: katex
-    highlight-style: ayu
-    page-layout: full
-    toc: true
-    number-sections: true
-    smooth-scroll: true
-    citation-hover: true
-bibliography: stat.bib
-csl: jama.csl
-license: "MIT"
-warning: false
-message: false
-cache: false
 ---
 
-::: {.panel-tabset}
 
 # Introduction
 
-**Évaluation du retentissement du retour à domicile des nouveau-nés prématurés présentant un retard de croissance intra-utérin avec un poids de moins de 2 kilos sur la morbi/mortalité à court et long terme.**
-
-**Responsable scientifique** : D<sup>r</sup> Rayane MAHFOUZ
-
-**Investigateur coordonnateur** :  D<sup>r</sup> Suzanne BORRHOMEE -- Service de réanimation et médecine néonatale -- NOVO (Site Pontoise)
-
-**Chef de projet** : M<sup>me</sup> Mathilde WLODARCZYK
 
 
 ```{r}
@@ -71,7 +31,7 @@ theme_gtsummary_language(language = "fr", decimal.mark = ",")
 options(OutDec = ",")
 #
 load("datas/petitpoids.RData")
-expx <- FALSE
+expx <- TRUE
 classeur <- "petitpoids1.xls"
 if (expx){system(paste0("rm -f ",classeur))}
 ```
@@ -120,6 +80,7 @@ vis_dat(palette = "qual")
 
 La qualité de remplissage est très mauvaise en particulier pour le fichier de suivi.
 
+\clearpage
 # Description de la population
 
 L'échantillon comporte `r nrow(tt)` cas.
@@ -154,6 +115,7 @@ add_n() |>
 scroll_box(width = "100%", height = "720px")
 ```
 
+\clearpage
 # Critère principal
 *Nombre de nouveau-nés de moins de 2 kilos ré-hospitalisés à 30 jours (J30) de leur sortie du service de néonatologie de l’hôpital NOVO (site de Pontoise)*
 
@@ -181,6 +143,7 @@ zz <- zz$nb
 À un mois 8 patients soit `r zz` ont été ré-hospitalisés.
 :::
 
+\clearpage
 # Critères secondaires
 
 ## Critères 1-3
@@ -213,7 +176,6 @@ nomsheet = "zscor",
 exp = expx)
 ```
 
-
 ```{r}
 #| label: tbl-zsc2
 #| tbl-cap: Zscore anormaux
@@ -233,6 +195,7 @@ add_p() |>
 
 Un zscore *anormal* est défini comme < -2 ou > 2.
 
+\clearpage
 ## Critère 4
 *Nombre de nouveau-nés ayant subi les morbidités suivantes à 6 mois post sortie : troubles digestifs, difficultés d’alimentation, bronchiolites, asthme du nourrisson, hospitalisations et consultations aux urgences tous motifs confondus, mauvaise prise pondérale, infection secondaire.*
 
@@ -272,12 +235,13 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "morbi", exp = expx)
 ```
 
-
+\clearpage
 ## Critère 5
 *Nombre de morts subites inexpliquées du nourrisson (MSIN) à 11 mois de la sortie.*
 
 Aucune mort subite inexpliquée du nourrisson (MSIN) n'a été notée.
 
+\clearpage
 ## Critère 6
 *Description du stress parental, des inquiétudes liées au retour à domicile*
 
@@ -307,6 +271,8 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "stress2", exp = expx)
 ```
 
+\clearpage
+
 ## Critère 7
 *Description du mode de suivi organisé à la sortie.* 
 
@@ -323,6 +289,7 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "suivi", exp = expx)
 ```
 
+\clearpage
 ## Critère 8
 *Étude des positions médicales concernant le poids minimal de sortie.*
 
@@ -336,20 +303,22 @@ tbl_summary(missing = "no") |>
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "med_poids", exp = expx)
+  pexptabph(nomfich = classeur, nomsheet = "med_poids", exp = expx) |> 
+column_spec(1, width = "30em")
 ```
+\clearpage
 
 ## Critère 9
 *Caractéristiques cliniques, contexte de naissance, étiologie du retard de croissance des nouveau-nés*
 
 Données disponibles dans les tableaux descriptifs de la population (@tbl-demo & @tbl-hop1).
- 
+ \clearpage
 # Technique
 
 Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance (à 95 %) ont été calculés après transformation angulaire. 
 
-Vu le faible nombre de cas & la mauvaise qualité du remplissage (beaucoup de données manquantes) aucun test n'a pu être réalisé. 
+Pour la comparaison entre les Zscores (poids, taille & périmètre crânien) & les trois consultations un test exact de \text{Fisher} a été utilisé.
+
+Vu le faible nombre de cas & la mauvaise qualité du remplissage (beaucoup de données manquantes) aucun autre test n'a pu être réalisé. En particulier l'analyse en régression prévu pour rechercher des facteurs de risque n'a pu être réalisée. 
 
 L'analyse statistique a été réalisée grâce au logiciel **R**[@rstat] & à divers packages en particulier `tidyverse`[@tidy], `FactoMineR`[@facto] & `epiDisplay`[@epid].
-
-:::

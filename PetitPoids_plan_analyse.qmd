@@ -20,7 +20,7 @@ L'étude comporte deux volets : une enquête de suivi auprès des parents compl�
 
 ## Taille de l'échantillon
 
-Le critère principal est : *Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital NOVO (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.* 
+Le critère principal est : *Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital \textsc{novo} (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.* 
 
 Il s'agit d'une étude observationnelle simple pour lesquelles il est difficile de préciser un nombre de cas nécessaires en l'absence de test statistique. Néanmoins on peut estimer à environ quarante cas le strict minimum nécessaire pour avoir un échantillon utilisable s'il n'y a pas trop de données manquantes. 
 
@@ -34,7 +34,9 @@ Après ce premier tri une imputation des données manquantes (package `missMDA` 
 
 ## Analyse simple
 
-Deux tableaux présenteront les résultats du questionnaire *Parents* : `avant la sortie`  & `au moment du retour`.  La partie médicale de l’enquête sera résumée sur des tableaux complémentaires : caractéristiques cliniques, contexte de naissance & étiologie du retard de croissance.
+Deux tableaux présenteront les résultats du questionnaire *Parents* : `avant la sortie`  & `au moment du retour`.  La partie médicale de l’enquête sera résumée sur des tableaux complémentaires : caractéristiques cliniques, contexte de naissance & étiologie du retard de croissance. 
+
+Outre le premier tableau (données démographiques), les autres tableaux seront découpés pour coller au mieux aux critères secondaires.
 
 
 Une analyse de corrélation (package `corr` [@corr]) entre les variables sera réalisée & présentée sur un graphique de corrélation. Si certaines variables se montrent anormalement corrélées elles devront être exclues de l'étude après accord du promoteur.
@@ -49,7 +51,7 @@ Cette analyse ne pourra être réalisée qu'après transformation des variables 
 
 # Objectif principal
 
-*Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital NOVO (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.*
+*Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital \textsc{novo} (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.*
 
 Le nombre d'enfants ayant été réhospitalisés durant le mois après sortie de l'hôpital sera présenté en nombre & pourcentage avec son intervalle de confiance. 
  

@@ -35,3 +35,8 @@ _exte*
 *.Rproj
 import.R
 datas
+*.xlsx
+*.xls
+*.html
+
+*.docx

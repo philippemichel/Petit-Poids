@@ -1,9 +1,9 @@
-title: "Petit poids"
+title: "Petit Poids"
 lang: fr
 author:
   - name: "Dr Philippe MICHEL"
     affiliations:
-      name: "Hôpital NOVO"
+      name: "Hôpital \\textsc{novo}"
       department: "Unité de Soutien à la Recherche Clinique"
 format:
  titlepage-pdf:
@@ -12,7 +12,7 @@ format:
   logo-space-after: "0\\baselineskip"
   documentclass: scrreprt
   number-sections: true
-  titlepage-footer: "D\\up{r} Rayane \\textsc{Mahfouz}\\newline D\\up{r} Suzanne BORRHOMÉE \\newline Service de médecine néonatale et réanimation pédiatrique\\newline Hôpital NOVO (Site Pontoise)\\newline \\newline Chef de projet : M\\up{me} Mathilde WLODARCZYK\\newline \\newline \\newline \\today"
+  titlepage-footer: "D\\up{r} Rayane \\textsc{Mahfouz}\\newline D\\up{r} Suzanne BORRHOMÉE \\newline Service de médecine néonatale et réanimation pédiatrique\\newline Hôpital \\textsc{novo} (Site Pontoise)\\newline \\newline Chef de projet : M\\up{me} Mathilde WLODARCZYK\\newline \\newline \\newline \\today"
 titlepage-theme:
   title-fontstyle: ["Huge", "bfseries"]
   title-color: novo
@@ -35,9 +35,9 @@ pdf-engine: lualatex
 keep-tex: true
 number-sections: true
 toc: true
-lof: false
-lot: false
-mainfont: Fira-sans
+lof: true
+lot: true
+mainfont: Arsenal
 mainfontoptions:
   - Ligatures=TeX
 monofont: Fira Mono
