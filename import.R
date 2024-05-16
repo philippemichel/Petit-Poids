@@ -43,6 +43,5 @@ mutate(mois = fct_recode(mois,
   mutate(mois = fct_relevel(mois,
   "mois 2", "mois 4", "mois 11"
 ))
-tt <- left_join(inclus, quest, by = "subjid") 
-save(tt, med, suivi, file = "datas/petitpoids.RData")
+save(inclus,quest, med, suivi, file = "datas/petitpoids.RData")
 }

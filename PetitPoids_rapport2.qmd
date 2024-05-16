@@ -1,5 +1,6 @@
 ---
 subtitle: "Rapport Statistique - V 1.0"
+cache: false
 ---
 
 
@@ -43,8 +44,7 @@ if (expx){system(paste0("rm -f ",classeur))}
 #| fig-cap: Données manquantes -- Inclusion
 #| 
 
-tt |> 
-dplyr::select(2:35) |> 
+inclus |> 
 vis_dat(palette = "qual")
 ```
 
@@ -53,8 +53,7 @@ vis_dat(palette = "qual")
 #| fig-cap: Données manquantes -- Questionnaire
 #| 
 
-tt |> 
-dplyr::select(40:90) |> 
+quest |> 
 vis_dat(palette = "qual")
 ```
 
@@ -80,16 +79,16 @@ vis_dat(palette = "qual")
 
 La qualité de remplissage est très mauvaise en particulier pour le fichier de suivi.
 
-\clearpage
+ 
 # Description de la population
 
-L'échantillon comporte `r nrow(tt)` cas.
+L'échantillon comporte `r nrow(inclus)` cas.
 
 ```{r}
 #| label: tbl-demo
 #| tbl-cap: Constantes à la naissance
 
-tt |>
+inclus |>
 dplyr::select(3, 5:15) |>
 tbl_summary(missing = "no") |>
 modify_header(label ~ " ") |>
@@ -97,42 +96,58 @@ bold_labels() |>
 add_n() |>
 pexptabph(nomfich = classeur,
 nomsheet = "naiss",
-exp = expx) |>
-scroll_box(width = "100%", height = "720px")
+exp = expx) 
 ```
 
 ```{r}
 #| label: tbl-hop1
 #| tbl-cap: Séjour à l'hôpital et sortie
 
-tt |> 
-dplyr::select(16:19,21,23:31) |> 
+inclus |> 
+dplyr::select(16:32) |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "hop1", exp = expx)|>
-scroll_box(width = "100%", height = "720px")
+  pexptabph(nomfich = classeur, nomsheet = "hop1", exp = expx)
 ```
 
-\clearpage
+ 
 # Critère principal
 *Nombre de nouveau-nés de moins de 2 kilos ré-hospitalisés à 30 jours (J30) de leur sortie du service de néonatologie de l’hôpital NOVO (site de Pontoise)*
+
+Après vérification les deux parents ont toujours donnez la mêm réponse sur la question relative à la réhospitalisation à un mois. On peut donc ne prendre que les réponses d'un parent
+
+```{r}
+#| label: controle parents
+#| eval: false
+
+quest |> 
+  dplyr::select(subjid, parent,q9_hospitm1_on) |> 
+  pivot_wider(names_from= parent, values_from = q9_hospitm1_on) |> 
+  mutate(accord = Mère == Père) |> 
+  count(accord)
+```
+
+
 
 ```{r}
 #| label: tbl-rehosp
 #| tbl-cap: Réhospitalisation
 
-tt |> 
-dplyr::select(66:68) |> 
+qq <- quest |> 
+dplyr::select(parent,35:37) |> 
+  dplyr::filter(parent == "Mère") |>
+  dplyr::select(-parent) 
+qq |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
   pexptabph(nomfich = classeur, nomsheet = "rehsop", exp = expx)
 
-nn <- length(na.omit(tt$q9_hospitm1_on))
-oui <- sum(na.omit(tt$q9_hospitm1_on) == "yes")
+nn <- length(na.omit(qq$q9_hospitm1_on))
+oui <- sum(na.omit(qq$q9_hospitm1_on) == "yes")
 zz <- transangph(oui,nn)
 zz <- zz$nb
 ```
@@ -140,10 +155,10 @@ zz <- zz$nb
 ::: {.callout-important}
 ## Résultat principal
 
-À un mois 8 patients soit `r zz` ont été ré-hospitalisés.
+À un mois 4 patients soit `r zz` ont été ré-hospitalisés.
 :::
 
-\clearpage
+ 
 # Critères secondaires
 
 ## Critères 1-3
@@ -195,7 +210,7 @@ add_p() |>
 
 Un zscore *anormal* est défini comme < -2 ou > 2.
 
-\clearpage
+ 
 ## Critère 4
 *Nombre de nouveau-nés ayant subi les morbidités suivantes à 6 mois post sortie : troubles digestifs, difficultés d’alimentation, bronchiolites, asthme du nourrisson, hospitalisations et consultations aux urgences tous motifs confondus, mauvaise prise pondérale, infection secondaire.*
 
@@ -203,18 +218,18 @@ Un zscore *anormal* est défini comme < -2 ou > 2.
 #| label: tbl-morbiddig
 #| tbl-cap: Morbidite digestive
 
-zz <- tt |> 
-dplyr::select(69:72) |> 
+zz <- quest |> 
+dplyr::select(38:41) |> 
 mutate_all(~ifelse(. == "yes",1,0)) |>
 rowwise() |> 
 mutate(morbdig = sum(c_across(everything()))) |> 
 mutate(morbdig = as.factor(ifelse(morbdig > 0, "yes", "no")))
 
-tt$morbdig <- zz$morbdig
-var_label(tt$morbdig) <- "Morbidité digestive"
+quest$morbdig <- zz$morbdig
+var_label(quest$morbdig) <- "Morbidité digestive"
 
-tt |> 
-dplyr::select(69:72, morbdig) |>
+quest |> 
+dplyr::select(38:41, morbdig) |>
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
@@ -226,8 +241,8 @@ add_n() |>
 #| label: tbl-morbi
 #| tbl-cap: Morbidité
 
-tt |> 
-dplyr::select(66:68,91,73:78) |> 
+quest |> 
+dplyr::select(42:47,morbdig) |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
@@ -235,13 +250,13 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "morbi", exp = expx)
 ```
 
-\clearpage
+ 
 ## Critère 5
 *Nombre de morts subites inexpliquées du nourrisson (MSIN) à 11 mois de la sortie.*
 
 Aucune mort subite inexpliquée du nourrisson (MSIN) n'a été notée.
 
-\clearpage
+ 
 ## Critère 6
 *Description du stress parental, des inquiétudes liées au retour à domicile*
 
@@ -249,8 +264,8 @@ Aucune mort subite inexpliquée du nourrisson (MSIN) n'a été notée.
 #| label: tbl-stres1
 #| tbl-cap: Stress parental
 
-tt |> 
-dplyr::select(39,64,66:68) |> 
+quest |> 
+dplyr::select(starts_with(c("q4","q7","q9","q10"))) |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
@@ -262,8 +277,8 @@ add_n() |>
 #| label: tbl-stres2
 #| tbl-cap: Stress parental au retour à domicile
 
-tt |> 
-dplyr::select(64,85:90) |> 
+quest |> 
+dplyr::select(starts_with(c("q7","q13"))) |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
@@ -271,7 +286,7 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "stress2", exp = expx)
 ```
 
-\clearpage
+ 
 
 ## Critère 7
 *Description du mode de suivi organisé à la sortie.* 
@@ -280,7 +295,7 @@ add_n() |>
 #| label: tbl-suivi
 #| tbl-cap: Mode de suivi
 
-tt |> 
+quest |> 
 dplyr::select(starts_with(c("q3"))) |> 
 tbl_summary(missing = "no") |> 
 modify_header(label ~ " ") |> 
@@ -289,7 +304,8 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "suivi", exp = expx)
 ```
 
-\clearpage
+ 
+
 ## Critère 8
 *Étude des positions médicales concernant le poids minimal de sortie.*
 
@@ -306,13 +322,14 @@ add_n() |>
   pexptabph(nomfich = classeur, nomsheet = "med_poids", exp = expx) |> 
 column_spec(1, width = "30em")
 ```
-\clearpage
+ 
 
 ## Critère 9
 *Caractéristiques cliniques, contexte de naissance, étiologie du retard de croissance des nouveau-nés*
 
 Données disponibles dans les tableaux descriptifs de la population (@tbl-demo & @tbl-hop1).
- \clearpage
+ 
+ 
 # Technique
 
 Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance (à 95 %) ont été calculés après transformation angulaire. 

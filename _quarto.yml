@@ -28,6 +28,7 @@ include-in-header:
     \AddToHook{env/tabular/before}{\addfontfeatures{Numbers=Monospaced}}
     \AddToHook{env/longtable/before}{\addfontfeatures{Numbers=Monospaced}}
     \usepackage{alphabeta}
+    \usepackage[section]{placeins}
 df-print : kable
 jss-pdf:
   keep-tex: true
