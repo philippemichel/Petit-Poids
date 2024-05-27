@@ -32,7 +32,7 @@ theme_gtsummary_language(language = "fr", decimal.mark = ",")
 options(OutDec = ",")
 #
 load("datas/petitpoids.RData")
-expx <- TRUE
+expx <- FALSE
 classeur <- "petitpoids1.xls"
 if (expx){system(paste0("rm -f ",classeur))}
 ```
