@@ -32,6 +32,7 @@ theme_gtsummary_language(language = "fr", decimal.mark = ",")
 options(OutDec = ",")
 #
 load("datas/petitpoids.RData")
+load("datas/xscore.RData")
 expx <- FALSE
 classeur <- "petitpoids1.xls"
 if (expx){system(paste0("rm -f ",classeur))}
@@ -167,6 +168,8 @@ zz <- zz$nb
 *Mesure du Z-score pour le poids, la taille & le périmètre crânien, mesurés aux visites systématiques réalisées à 2 mois, 4 mois et 11 mois*
 
 Vu le très faible nombre de données disponibles les résultats sont à interpréter avec précaution.
+
+Les données utilisées pour l'établissement du xscore sont les *Courbes de croissance AFPA – CRESS/INSERM - CompuGroup Medical, 2018*.
 
 
 ```{r}
