@@ -32,9 +32,9 @@ theme_gtsummary_language(language = "fr", decimal.mark = ",")
 options(OutDec = ",")
 #
 load("datas/petitpoids.RData")
-load("datas/xscore.RData")
-expx <- FALSE
-classeur <- "petitpoids1.xls"
+load("datas/zscore.RData")
+expx <- TRUE
+classeur <- "petitpoids2.xls"
 if (expx){system(paste0("rm -f ",classeur))}
 ```
 
@@ -94,7 +94,7 @@ dplyr::select(3, 5:15) |>
 tbl_summary(missing = "no", 
             type = list(pc_cm ~ "continuous", 
                         naisstermsa ~ "continuous"),
-            statistic = list(all_categorical() ~ "{n}/{N} ({p} %)")) |>
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |>
 modify_header(label ~ " ") |>
 bold_labels() |>
 pexptabph(nomfich = classeur,
@@ -107,11 +107,11 @@ exp = expx)
 #| tbl-cap: Séjour à l'hôpital et sortie
 
 inclus |> 
-dplyr::select(16:32) |> 
-tbl_summary(missing = "no") |> 
+dplyr::select(16:19,21,23:32) |> 
+tbl_summary(missing = "no",
+             statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
-add_n() |> 
   pexptabph(nomfich = classeur, nomsheet = "hop1", exp = expx)
 ```
 
@@ -119,7 +119,6 @@ add_n() |>
 # Critère principal
 *Nombre de nouveau-nés de moins de 2 kilos ré-hospitalisés à 30 jours (J30) de leur sortie du service de néonatologie de l’hôpital NOVO (site de Pontoise)*
 
-Après vérification les deux parents ont toujours donnez la mêm réponse sur la question relative à la réhospitalisation à un mois. On peut donc ne prendre que les réponses d'un parent
 
 ```{r}
 #| label: controle parents
@@ -138,17 +137,20 @@ quest |>
 #| label: tbl-rehosp
 #| tbl-cap: Réhospitalisation
 
-qq <- quest |> 
+quest |> 
 dplyr::select(parent,35:37) |> 
-  dplyr::filter(parent == "Mère") |>
-  dplyr::select(-parent) 
-qq |> 
-tbl_summary(missing = "no") |> 
+tbl_summary(missing = "no", 
+            by = parent,
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
-add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "rehsop", exp = expx)
-
+add_overall() |>
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
+  pexptabph(nomfich = classeur, nomsheet = "rehsop", exp = expx) |> 
+  column_spec(1, width = "20em")
+#
+qq <- quest |>
+  filter(parent == "Mère")
 nn <- length(na.omit(qq$q9_hospitm1_on))
 oui <- sum(na.omit(qq$q9_hospitm1_on) == "yes")
 zz <- transangph(oui,nn)
@@ -158,7 +160,7 @@ zz <- zz$nb
 ::: {.callout-important}
 ## Résultat principal
 
-À un mois 4 patients soit `r zz` ont été ré-hospitalisés.
+À un mois 4  patients soit 15 % avec un intervalle de confiance à 95 % de `r zz` ont été ré-hospitalisés.
 :::
 
  
@@ -171,12 +173,18 @@ Vu le très faible nombre de données disponibles les résultats sont à interpr
 
 Les données utilisées pour l'établissement du xscore sont les *Courbes de croissance AFPA – CRESS/INSERM - CompuGroup Medical, 2018*.
 
+::: {.callout-warning}
+
+
+Le calcul n'a pas été fait pour le poids en l’absence de données de référence.
+:::
+
 
 ```{r}
 #| label: tbl-zscore
 #| tbl-cap: Z-score poids
 
-suivi |>
+zscore |>
 dplyr::select(starts_with("zsc"), mois) |>
 tbl_summary(
 by = mois,
@@ -190,7 +198,7 @@ zscorepc ~ "continuous"
 modify_header(label ~ " ") |>
 bold_labels() |>
 add_n() |>
-add_p() |>
+add_p(test = list(all_continuous() ~ "aov")) |>
 pexptabph(nomfich = classeur,
 nomsheet = "zscor",
 exp = expx)
@@ -200,7 +208,7 @@ exp = expx)
 #| label: tbl-zsc2
 #| tbl-cap: Zscore anormaux
 
-suivi |> 
+zscore |> 
 mutate('zscore poids' = ifelse(zscorepds < -2 , "yes", "no")) |>
 mutate('zscore taille' = ifelse(zscoretaill < -2 , "yes", "no")) |>
 mutate('zscore pc' = ifelse(zscorepc < -2 , "yes", "no")) |> 
@@ -209,11 +217,11 @@ tbl_summary(missing = "no", by = mois) |>
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-add_p() |>
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
   pexptabph(nomfich = classeur, nomsheet = "zscore2", exp = expx)
 ```
 
-Un zscore *anormal* est défini comme < -2 ou > 2.
+Un z-score *anormal* est défini comme < -2 ou > 2.
 
  
 ## Critère 4
@@ -234,17 +242,16 @@ quest$morbdig <- zz$morbdig
 var_label(quest$morbdig) <- "Morbidité digestive"
 
 quest |> 
-édrop_na(q11_rgo_on) |> 
+drop_na(q11_rgo_on) |> 
 dplyr::select(parent, 38:41, morbdig) |>
 tbl_summary(missing = "no", 
             by = parent,
-            statistic = list(all_categorical() ~ "{n}/{N} ({p} %)")) |> 
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_overall() |>
-add_p() |>
-  pexptabph(nomfich = classeur, nomsheet = "morbidig", exp = expx) |> 
-column_spec(1, width = "30em")
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
+  pexptabph(nomfich = classeur, nomsheet = "morbidig", exp = expx) 
 ```
 
 ```{r}
@@ -255,13 +262,12 @@ quest |>
 dplyr::select(parent, 42:46,morbdig) |> 
 tbl_summary(missing = "no",
 by = parent,
-            statistic = list(all_categorical() ~ "{n}/{N} ({p} %)"))  |> 
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})"))  |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_overall() |>
-add_p() |>
-  pexptabph(nomfich = classeur, nomsheet = "morbi", exp = expx) |> 
-column_spec(1, width = "30em")
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
+  pexptabph(nomfich = classeur, nomsheet = "morbi", exp = expx)
 ```
 
  
@@ -279,32 +285,62 @@ Aucune mort subite inexpliquée du nourrisson (MSIN) n'a été notée.
 #| tbl-cap: Stress parental
 
 quest |> 
-dplyr::select(parent, starts_with(c("q4","q7","q9","q10"))) |> 
+dplyr::select(parent, starts_with(c("a_q4","a_q7","a_q9","a_q10"))) |> 
 tbl_summary(missing = "no", 
             by = parent,
-            statistic = list(all_categorical() ~ "{n}/{N} ({p} %)")) |> 
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_overall() |>
-add_p() |> 
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
   pexptabph(nomfich = classeur, nomsheet = "stress1", exp = expx) |> 
-column_spec(1, width = "30em")
+column_spec(1, width = "20em")
 ```
 
 ```{r}
 #| label: tbl-stres2
-#| tbl-cap: Stress parental au retour à domicile
+#| tbl-cap: Stress parental au retour à domicile 
 
 quest |> 
-dplyr::select(parent, starts_with(c("q13"))) |> 
+dplyr::select(parent, starts_with(c("q7"))) |> 
 tbl_summary(missing = "no",
 by = parent,
-            statistic = list(all_categorical() ~ "{n}")) |> 
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
+add_overall() |>
 bold_labels() |> 
-  pexptabph(nomfich = classeur, nomsheet = "stress2", exp = expx)
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
+  pexptabph(nomfich = classeur, nomsheet = "stress2", exp = expx)|> 
+column_spec(1, width = "20em")
 ```
 
+ 
+ 
+```{r}
+#| label: tbl-stres3
+#| tbl-cap:  "À votre avis, quels sont les éléments qui vous ont le plus aidés pour que le retour à domicile avec votre nouveau-né se passe bien ?"
+
+noms <- c("Parents", "Être bien préparé(e) avant la sortie par l’équipe de néonatologie", "L’entourage familial", "Votre expérience préalable avec des nouveau-nés", "Les passages à domicile des professionnels", "Rien, je n’ai pas été aidé(e)", "Autre")
+
+zz <- quest |> 
+dplyr::select(parent, starts_with(c("q12"))) |> 
+  dplyr::select(parent, starts_with(c("q12"))) |>
+  mutate(across(starts_with("q12"), as.character)) |> 
+  mutate(across(starts_with("q12"),~ replace_na(.x,"no"))) |> 
+  mutate(across(starts_with("q12"), as.factor))
+var_label(zz) <- noms
+zz |> 
+tbl_summary(missing = "no",
+by = parent,
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
+modify_header(label ~ " ") |> 
+add_overall() |>
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
+bold_labels() |> 
+  pexptabph(nomfich = classeur, nomsheet = "stress3", exp = expx) |> 
+column_spec(1, width = "20em")
+rm(zz)
+```
  
 
 ## Critère 7
@@ -315,15 +351,15 @@ bold_labels() |>
 #| tbl-cap: Mode de suivi
 
 quest |>
-dplyr::select(parent, q3_on, q4_on, q3_suivi, q4_rassur_on) |>
+dplyr::select(parent, a_q3_on, a_q4_on, q3_suivi, q4_rassur_on) |>
 tbl_summary(
 missing = "no",
 by = parent,
-statistic = list(all_categorical() ~ "{n}/{N} ({p} %)")
+statistic = list(all_categorical() ~ "{n}/{N} ({p})")
 ) |>
 modify_header(label ~ " ") |>
 bold_labels() |>
-add_p() |>
+add_p(test = list(all_categorical() ~ "fisher.test")) |>
 pexptabph(nomfich = classeur,
 nomsheet = "suivi",
 exp = expx)
@@ -340,10 +376,10 @@ exp = expx)
 
 med |> 
 dplyr::select(12:15) |> 
-tbl_summary(missing = "no") |> 
+tbl_summary(missing = "no",
+            statistic = list(all_categorical() ~ "{n}/{N} ({p})")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
-add_n() |> 
   pexptabph(nomfich = classeur, nomsheet = "med_poids", exp = expx) |> 
 column_spec(1, width = "30em")
 ```
@@ -359,8 +395,8 @@ Données disponibles dans les tableaux descriptifs de la population (@tbl-demo &
 
 Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance (à 95 %) ont été calculés après transformation angulaire. 
 
-Pour la comparaison entre les Zscores (poids, taille & périmètre crânien) & les trois consultations un test exact de \text{Fisher} a été utilisé.
+Les comparaisons entre données catégorielles ont été faites par un test exact de Fisher.  Les comparaison des z-scores aux différentes visites ont été calculées en anlayse variance (ANOVA)
 
 Vu le faible nombre de cas & la mauvaise qualité du remplissage (beaucoup de données manquantes) aucun autre test n'a pu être réalisé. En particulier l'analyse en régression prévu pour rechercher des facteurs de risque n'a pu être réalisée. 
 
-L'analyse statistique a été réalisée grâce au logiciel **R**[@rstat] & à divers packages en particulier `tidyverse`[@tidy], `FactoMineR`[@facto] & `epiDisplay`[@epid].
+L'analyse statistique a été réalisée grâce au logiciel **R**[@rstat] & à divers packages en particulier `tidyverse`[@tidy] & `epiDisplay`[@epid].
