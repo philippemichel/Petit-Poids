@@ -71,8 +71,9 @@ theme_gtsummary_language(language = "fr", decimal.mark = ",")
 options(OutDec = ",")
 #
 load("datas/petitpoids.RData")
+load("datas/xscore.RData")
 expx <- FALSE
-classeur <- "petitpoids1.xls"
+classeur <- "petitpoids2.xls"
 if (expx){system(paste0("rm -f ",classeur))}
 ```
 

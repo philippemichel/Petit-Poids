@@ -1,7 +1,7 @@
 title: "Petit Poids"
 lang: fr
 author:
-  - name: "Dr Philippe MICHEL"
+  - name: "Dr Philippe \\textsc{Michel}"
     affiliations:
       name: "Hôpital \\textsc{novo}"
       department: "Unité de Soutien à la Recherche Clinique"
@@ -12,7 +12,7 @@ format:
   logo-space-after: "0\\baselineskip"
   documentclass: scrreprt
   number-sections: true
-  titlepage-footer: "D\\up{r} Rayane \\textsc{Mahfouz}\\newline D\\up{r} Suzanne BORRHOMÉE \\newline Service de médecine néonatale et réanimation pédiatrique\\newline Hôpital \\textsc{novo} (Site Pontoise)\\newline \\newline Chef de projet : M\\up{me} Mathilde WLODARCZYK\\newline \\newline \\newline \\today"
+  titlepage-footer: "D\\up{r} Rayane \\textsc{Mahfouz}\\newline D\\up{r} Suzanne \\textsc{Borrhomée} \\newline Service de médecine néonatale et réanimation pédiatrique\\newline Hôpital \\textsc{novo} (Site Pontoise)\\newline \\newline Chef de projet : M\\up{me} Mathilde \\textsc{Wlodarczyk}\\newline \\newline \\newline \\today"
 titlepage-theme:
   title-fontstyle: ["Huge", "bfseries"]
   title-color: novo
@@ -24,11 +24,11 @@ titlepage-theme:
 include-in-header:
    text: |
     \definecolor{novo}{HTML}{27484b}
-    \usepackage{siunitx}
+    \usepackage[locale = FR, per-mode = symbol]{siunitx}
+    \usepackage[section]{placeins}
+    \usepackage{arsenal}
     \AddToHook{env/tabular/before}{\addfontfeatures{Numbers=Monospaced}}
     \AddToHook{env/longtable/before}{\addfontfeatures{Numbers=Monospaced}}
-    \usepackage{alphabeta}
-    \usepackage[section]{placeins}
 df-print : kable
 jss-pdf:
   keep-tex: true

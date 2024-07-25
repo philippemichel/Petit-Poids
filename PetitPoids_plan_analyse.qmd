@@ -1,5 +1,8 @@
 ---
 subtitle: "Plan d'analyse statistique"
+toc: false
+lof: false
+lot: false
 ---
 
 ```{r info}
@@ -12,34 +15,48 @@ library("kableExtra")
 
 # Généralités
 
-Le risque \textalpha{} retenu sera de 0,05 & la puissance de 0,8.
+Le risque $\alpha$ retenu sera de 0,05 & la puissance de 0,8.
 
-Vu le faible nombre de cas on ne fera pas d'hypothèse de normalité. Les variables numériques seront présentées par leur médiane avec les quartiles & comparées grâce au test non paramétrique de Wilcoxon. Les variables discrètes seront présentés en nombre avec le pourcentage. L'intervalle de confiance (à 95 %) sera calculé par bootstrap (package `boot` [@boot]). Le test du \textchi$^2$ de Spearman sera utilisé sous réserve d'un effectif suffisant, à défaut le test exact de Fischer. Des graphiques seront réalisés pour les résultats importants (package `ggplot2` [@ggplot]).
+Vu le faible nombre de cas on ne fera pas d'hypothèse de normalité. Les variables numériques seront présentées par leur médiane avec les quartiles & comparées grâce au test non paramétrique de Wilcoxon. Les variables discrètes seront présentés en nombre avec le pourcentage. L'intervalle de confiance (à 95 %) sera calculé par bootstrap (package `boot` [@boot]). Le test du $\chi^2$ de Spearman sera utilisé sous réserve d'un effectif suffisant, à défaut le test exact de Fischer. Des graphiques seront réalisés pour les résultats importants (package `ggplot2` [@ggplot]).
 
 L'étude comporte deux volets : une enquête de suivi auprès des parents complétée par une analyse du dossier médical & une enquête sur les pratiques courantes auprès des médecins de néonatologie d'Île de France.
 
+
 ## Taille de l'échantillon
 
-Le critère principal est : *Observer le devenir à court terme (réhospitalisation) des nouveau-nés ayant quitté le service de néonatologie de l’hôpital \textsc{novo} (site de Pontoise) entre 2012 et 2022 avec un poids inférieur à 2 kilos.* 
+```{r}
+#|label: taille
 
-Il s'agit d'une étude observationnelle simple pour lesquelles il est difficile de préciser un nombre de cas nécessaires en l'absence de test statistique. Néanmoins on peut estimer à environ quarante cas le strict minimum nécessaire pour avoir un échantillon utilisable s'il n'y a pas trop de données manquantes. 
+zz <- round(nb.obs.ph(ex = 0.15) * 1.1, 0)
+```
 
-## Données manquantes
 
-Le décompte des données manquantes sera réalisé & présenté par un tableau ou un graphique. Les variables comportant trop de données manquantes ou non utilisables ne seront pas prises en compte après validation par le promoteur. Les cas où la réhospitalisation de l’enfant (critère principal) n'est pas noté seront exclus. 
+Il s'agit d'une étude observationnelle simple pour lesquelles il est difficile de préciser un nombre de cas nécessaires en l'absence de test statistique. Néanmoins en utilisant un calcul de taille pour des enquêtes avec une réponse à 50 % pour le critère principal (cas le plus défavorable) & une erreur admissible de 15 %, dans une grande population, on peut estimer le nombre de cas nécessaires à `r zz`. 
+
+## Qualité des données
+
+Une analyse de corrélation (package `corr` [@corr]) entre les variables sera réalisée & présentée sur un graphique de corrélation. Si certaines variables se montrent anormalement corrélées elles devront être exclues de l'étude après accord du promoteur.
+
+Un décompte des données manquantes sera réalisé & présenté par un tableau ou un graphique. Les variables comportant trop de données manquantes ou non utilisables ne seront pas prises en compte après validation par le promoteur. Les cas où la réhospitalisation de l’enfant (critère principal) n'est pas noté seront exclus. 
 
 Après ce premier tri une imputation des données manquantes (package `missMDA` [@miss]) sera réalisée uniquement pour l'analyse factorielle & pour la recherche du meilleur modèle par step-by-tep descendant pour les analyses par régression (logistique ou linéaire). Néanmoins pour cette analyse, après choix du modèle, le calcul final sera fait avec les données réelles. 
 
 # Description de la population
 
-## Analyse simple
+:::{.callout-tip title="RCIU"}
+Le RCIU a été défini par l'investigateur selon le poids à la naissance ce qui n'est pas la définition communément admise. On fera donc apparaitre dans les analyses deux variables : 
 
-Deux tableaux présenteront les résultats du questionnaire *Parents* : `avant la sortie`  & `au moment du retour`.  La partie médicale de l’enquête sera résumée sur des tableaux complémentaires : caractéristiques cliniques, contexte de naissance & étiologie du retard de croissance. 
+- RCIU selon la définition habituelle, *officielle*
+- RCIU  défini sur le poids à la naissance. 
+
+Pour l'analyse en régression ou l'analyse factorielle seule la définition *officielle* sera utilisée.
+:::
+
+## Description simple
+
+Deux tableaux présenteront les résultats du questionnaire *Parents* : `avant la sortie`  & `au moment du retour`. La partie médicale de l’enquête sera résumée sur des tableaux complémentaires : caractéristiques cliniques, contexte de naissance & étiologie du retard de croissance. 
 
 Outre le premier tableau (données démographiques), les autres tableaux seront découpés pour coller au mieux aux critères secondaires.
-
-
-Une analyse de corrélation (package `corr` [@corr]) entre les variables sera réalisée & présentée sur un graphique de corrélation. Si certaines variables se montrent anormalement corrélées elles devront être exclues de l'étude après accord du promoteur.
 
 Un tableau présentera les résultats du questionnaire *médecin*.
 
@@ -55,7 +72,9 @@ Cette analyse ne pourra être réalisée qu'après transformation des variables 
 
 Le nombre d'enfants ayant été réhospitalisés durant le mois après sortie de l'hôpital sera présenté en nombre & pourcentage avec son intervalle de confiance. 
  
-Une analyse simple sera réalisée pour rechercher d'éventuels facteurs pronostics en utilisant les données médicales (terme, poids à la naissance\dots)
+Une analyse simple sera réalisée pour rechercher d'éventuels facteurs pronostics en utilisant les données médicales (terme, poids à la naissance\dots).
+
+
 
 
 ## Analyse par régression
@@ -68,7 +87,9 @@ Un modèle de régression logistique multinomiale sera employé (package `VGAM` 
 
 *Mesure du Z-score pour le poids, la taille & le périmètre crânien, mesuré aux visites systématiques réalisées à 2 mois, 4 mois et 11 mois des nouveau-nés sortis de néonatologie à moins de 2 kilos.*
 
-La médiane avec les quartiles sera présentée pour chacune des trois mesures pour chaque consultation. Une représentation graphique (diagramme en box-plot ou violon-plot) sera réalisée ainsi que des graphiques d'évolution avec les droites de régression \footnote{Pour la visite à onze mois il risque d'y avoir de nombreuses données manquantes ce qui limiterait la qualité du modèle.}. Vu le faible nombre de cas un diagramme *en fagots* pourra être tracé.
+Les visites n'étant pas toujours réalisées exactement aux dates prévues, l'analyse sera faite pour toutes les visites réalisées entre la sortie de maternité et douze mois. 
+
+La médiane avec les quartiles sera présentée pour chacune des trois mesures pour chaque consultation. Une représentation graphique (diagramme en box-plot ou violon-plot) sera réalisée ainsi que des graphiques d'évolution avec les droites de régression \footnote{Pour la visite à onze ou douze mois il risque d'y avoir de nombreuses données manquantes ce qui limitera la qualité du modèle.}. Vu le faible nombre de cas un diagramme *en fagots* pourra être tracé.
 
 Ces mesures seront considérées comme *normales* si comprises entre -2 & 2 DS. Le nombre & le pourcentage de mesures normales seront présentés pour chaque consultation. Des diagrammes de flux (diagramme de Sankey -- package `networkD3` [@reseau]) pour chaque mesure pourront être dessinés.  
 
