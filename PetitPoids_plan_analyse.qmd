@@ -1,5 +1,5 @@
 ---
-subtitle: "Plan d'analyse statistique"
+title: "Plan d'analyse statistique"
 toc: false
 lof: false
 lot: false
@@ -10,7 +10,6 @@ rm(list=ls())
 library("baseph")
 library("tidyverse")
 library("kableExtra")
-# sessionInfo()
 ```
 
 # Généralités
