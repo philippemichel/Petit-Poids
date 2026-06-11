@@ -38,5 +38,14 @@ datas
 *.xlsx
 *.xls
 *.html
-
 *.docx
+PetitPoids_rapport_files
+VIEUX
+docs
+ptpoids_rapport_files
+xx_quarto.yml
+**/*.quarto_ipynb
+PetitPoids_plan_analyse.glg
+PetitPoids_plan_analyse.glo
+PetitPoids_plan_analyse.gls
+PetitPoids_plan_analyse.ist

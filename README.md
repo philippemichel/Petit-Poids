@@ -12,7 +12,7 @@
 
 Étude prospective non interventionnelle monocentrique
 
-**Plan d'analyse statistique**
+-  11/06/2026 **Plan d'analyse statistique V2.0**
 
 **PetitPoids_rapport** rapport statistique pour une sortie en html.
 
