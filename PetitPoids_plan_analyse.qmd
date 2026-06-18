@@ -1,5 +1,5 @@
 ---
-title: "Plan d'analyse statistique V2.0"
+subtitle: "Plan d'analyse statistique V2.0"
 toc: false
 lot: false
 lof: false

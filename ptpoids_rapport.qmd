@@ -1,5 +1,5 @@
 ---
-title: "Rapport statistique"
+title: "Rapport statistique v2.0"
 cache: true
 ---
 
@@ -14,6 +14,7 @@ rm(list = ls())
 #
 library(baseph)
 library(janitor)
+library(corrplot)
 library(tidyverse)
 library(gtsummary)
 library(kableExtra)
@@ -38,7 +39,6 @@ if (expx) {
 
 # sessionInfo()
 theme_gtsummary_language(language = "fr", decimal.mark = ",")
- theme_gtsummary_journal(journal = "jama")
 options(OutDec = ",")
 ptest <- list(all_continuous() ~ "wilcox.test", all_categorical() ~ "chisq.test")
 stt <- list(
@@ -47,6 +47,10 @@ stt <- list(
     )
 load("datas/petitpoids.RData")
 ```
+
+::: {.callout-note}
+Pour toutes les variables binaire (oui/non), seul le code "`Oui`" est présenté dans la plupart des tableaux.
+:::
 
 ## Données manquantes
 
@@ -90,7 +94,75 @@ vis_dat(palette = "qual")
 
 La qualité de remplissage est très mauvaise en particulier pour le fichier de suivi.
 
- 
+## Corrélations
+
+```{r}
+#| label: corr1
+#| fig-cap: Corrélations - Inclusion
+
+zz <- inclus |> 
+  dplyr::select(-subjid) |> 
+  dplyr::select(-ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         title = "Matrice de corrélation",
+         tl.cex = 0.5,
+         diag = FALSE)
+```
+
+```{r}
+#| label: corr2
+#| fig-cap: Corrélations - Questionnaire
+
+zz <- quest |> 
+  dplyr::select(-subjid) |> 
+  dplyr::select(-ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         title = "Matrice de corrélation",
+         tl.cex = 0.5,
+         diag = FALSE)
+```
+
+```{r}
+#| label: corr3
+#| fig-cap: Corrélations - Suivi
+
+zz <- suivi |> 
+  dplyr::select(-subjid) |> 
+  dplyr::select(-ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         title = "Matrice de corrélation",
+         tl.cex = 0.5,
+         diag = FALSE)
+```
+
+```{r}
+#| label: corr4
+#| fig-cap: Corrélations - Médecins
+
+zz <- med |> 
+  dplyr::select(-ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         title = "Matrice de corrélation",
+         tl.cex = 0.5,
+         diag = FALSE)
+```
+
 # Description de la population
 
 L'échantillon comporte `r nrow(inclus)` cas.
@@ -101,12 +173,16 @@ L'échantillon comporte `r nrow(inclus)` cas.
 
 inclus |>
 dplyr::select(3, 5:15) |>
-tbl_summary(missing = "no") |>
+tbl_summary(missing = "no",
+            type = list(pc_cm = "continuous"),
+             value = list(rciuplacent_on = "yes",
+                          rciu_on = "yes")) |>
 modify_header(label ~ " ") |>
 bold_labels() |>
 add_n() |>
 pexptabph(nomfich = classeur,
 nomsheet = "naiss",
+lg = TRUE,
 exp = expx) 
 ```
 
@@ -115,8 +191,12 @@ exp = expx)
 #| tbl-cap: Séjour à l'hôpital et sortie
 
 inclus |> 
-dplyr::select(16:32) |> 
-tbl_summary(missing = "no") |> 
+dplyr::select(16:21,23:31) |> 
+  dplyr::select(-ends_with("dte")) |> 
+tbl_summary(missing = "no",
+            value = list(domic_on = "yes",
+                         consultped_on = "yes",
+                         emploi_on = "yes")) |> 
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
@@ -222,7 +302,7 @@ Un zscore *anormal* est défini comme < -2 ou > 2.
 
  
 ## Critère 4
-*Nombre de nouveau-nés ayant subi les morbidités suivantes à 6 mois post sortie : troubles digestifs, difficultés d’alimentation, bronchiolites, asthme du nourrisson, hospitalisations et consultations aux urgences tous motifs confondus, mauvaise prise pondérale, infection secondaire.*
+*Nombre de nouveau-nés ayant subi les morbidités suivantes à 6 mois post sortie : troubles digestifs, difficultés d'alimentation, bronchiolites, asthme du nourrisson, hospitalisations et consultations aux urgences tous motifs confondus, mauvaise prise pondérale, infection secondaire.*
 
 ```{r}
 #| label: tbl-morbiddig
@@ -280,7 +360,9 @@ tbl_summary(missing = "no") |>
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "stress1", exp = expx)
+  pexptabph(nomfich = classeur, nomsheet = "stress1", 
+  lg = TRUE,
+  exp = expx)
 ```
 
 ```{r}
@@ -311,7 +393,10 @@ tbl_summary(missing = "no") |>
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "suivi", exp = expx)
+  pexptabph(nomfich = classeur, 
+            nomsheet = "suivi", 
+            lg = TRUE,
+            exp = expx)
 ```
 
  
@@ -329,7 +414,9 @@ tbl_summary(missing = "no") |>
 modify_header(label ~ " ") |> 
 bold_labels() |> 
 add_n() |> 
-  pexptabph(nomfich = classeur, nomsheet = "med_poids", exp = expx) |> 
+  pexptabph(nomfich = classeur, nomsheet = "med_poids", 
+            lg = TRUE,
+            exp = expx) |> 
 column_spec(1, width = "30em")
 ```
  
@@ -338,16 +425,18 @@ column_spec(1, width = "30em")
 *Caractéristiques cliniques, contexte de naissance, étiologie du retard de croissance des nouveau-nés*
 
 Données disponibles dans les tableaux descriptifs de la population (@tbl-demo & @tbl-hop1).
- 
+ \appendix
 
 # Technique
 
 Les données démographiques on été décrites par la médiane & les quartiles pour les données numériques, en pourcentage pour les données catégorielles. Les intervalles de confiance (à 95 %) ont été calculés après transformation angulaire. 
 
-Pour la comparaison entre les Zscores (poids, taille & périmètre crânien) & les trois consultations un test exact de \text{Fisher} a été utilisé.
+Pour la comparaison entre les Z-scores (poids, taille & périmètre crânien) & les trois consultations un test exact de \text{Fisher} a été utilisé.
 
 Vu le faible nombre de cas & la mauvaise qualité du remplissage (beaucoup de données manquantes) aucun autre test n'a pu être réalisé. En particulier l'analyse en régression prévu pour rechercher des facteurs de risque n'a pu être réalisée. 
 
 L'analyse statistique a été réalisée grâce au logiciel **R**[@rstat] & à divers packages en particulier `tidyverse`[@tidy], `FactoMineR`[@facto] & `epiDisplay`[@epid].
 
-:::
+
+
+# Bibliographie
