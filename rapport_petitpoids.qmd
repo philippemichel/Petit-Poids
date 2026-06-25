@@ -1,0 +1,512 @@
+---
+subtitle: "Rapport statistique V0.9 (en attente Z-scores)"
+
+cache: false
+---
+
+```{r}
+#| label: setup
+
+rm(list = ls())
+#
+library("gtsummary")
+library("kableExtra")
+library("forestmodel")
+library("labelled")
+library("epiDisplay")
+library("visdat")
+library("corrplot")
+library("biostats")
+library("colorspace")
+library("FactoMineR")
+library("factoextra")
+library("epiR")
+library("scales")
+library("readODS")
+library("ggsci")
+library("survminer")
+library("baseph")
+library("tidyverse")
+#
+theme_gtsummary_language(language = "fr", decimal.mark = ",")
+options(OutDec = ",")
+#
+load("datas/petitpoids.RData")
+expx <- FALSE
+classeur <- "petitpoids"
+# if (exp){system(paste0("rm -f ",classeur))}
+#
+theme_gtsummary_language(language = "fr", decimal.mark = ",")
+# theme_gtsummary_journal(journal = "jama")
+options(OutDec = ",")
+ptest <- list(all_continuous() ~ "t.test", all_categorical() ~ "chisq.test")
+stt <- list(
+  all_continuous() ~ "{median} ({p25}, {p75})",
+  all_categorical() ~ "{n}/{N} ({p}%)"
+)
+```
+
+ 
+
+\newpage
+
+
+Pour toutes les variables binaire (oui/non), seul le code "`Oui`" est présenté dans la plupart des tableaux.
+
+
+Vu la taille de l'échantillon aucune hypothèse de normalité n'est faite. Les résultats numériques sont donnés en médians avec les quartiles & comparées par un test non paramétrique de Wilcoxon. 
+
+# Validation de la population
+
+
+## Naissance
+
+Ce tableau comporte `r nrow(naiss)` cas.
+
+```{r}
+#| label: fig-manq-naiss
+#| fig-cap: Données manquantes - naissance
+naiss |> 
+  dplyr::select(- subjid) |> 
+vis_dat(
+         sort_type = FALSE,
+          warn_large_data = FALSE) +
+  labs(title = "Données manquantes - naissance") +
+    theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 80, vjust =0, hjust=0)
+  )
+  
+```
+
+```{r}
+#| label: fig-cor-naiss
+#| fig-cap: Corrélations
+#| fig-alt: Tableau de corrélation naissance. RAS"
+
+zz <- naiss|> 
+  dplyr::select(- subjid) |> 
+  dplyr::select(!ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         cl.pos = "r",
+         title = "Matrice de corrélation - Naissance",
+         tl.cex = 0.5,
+         diag = FALSE,,
+          mar = c(0, 0, 1.5, 0)) 
+```
+
+# Sortie de la maternité
+
+
+```{r}
+#| label: fig-manq-sortie
+#| fig-cap: Données manquantes - sortie
+#| fig-alt: "Tableau de données manquantes sortie. RAS"
+
+sortie |> 
+  dplyr::select(- subjid) |> 
+vis_dat(sort_type = FALSE,
+          warn_large_data = FALSE) +
+  labs(title = "Données manquantes - Sortie") +
+    theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 80, vjust =0, hjust=0)
+  )
+```
+
+
+```{r}
+#| label: fig-cor-sortie
+#| fig-cap: Corrélations
+#| fig-alt: Tableau de corrélation sortie. RAS"
+
+zz <- sortie|> 
+  dplyr::select(- subjid) |> 
+  dplyr::select(!ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x)))
+
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         cl.pos = "r",
+         title = "Matrice de corrélation - Sortie",
+         tl.cex = 0.5,
+         diag = FALSE,,
+          mar = c(0, 0, 1.5, 0)) 
+```
+
+# Questionnaire Parents
+```{r}
+#| label: fig-manq-parents
+#| fig-cap: Données manquantes - parents
+#| fig-asp: 0.8
+
+parents |>
+
+  dplyr::select(!starts_with("subjid")) |>
+vis_dat(sort_type = FALSE,
+          warn_large_data = FALSE) +
+  labs(title = "Données manquantes - Parents") +
+    theme(
+    legend.position = "bottom",
+    axis.text.x = element_text(angle = 80, vjust =0, hjust=0)
+  )
+```
+
+
+```{r}
+#| label: fig-cor-parents
+#| fig-cap: Corrélations
+#| fig-alt: Tableau de corrélation parents RAS"
+
+zz <- parents|> 
+  dplyr::select(- subjid) |> 
+  dplyr::select(!ends_with("dte")) |> 
+  mutate(across(where(is.factor), ~ as.numeric(.x))) |> 
+   dplyr::select(-subjid2)
+
+zz_cor <- cor(zz, use = "pairwise.complete.obs")
+
+corrplot(zz_cor,
+         type = 'lower',
+         cl.pos = "r",
+         title = "Matrice de corrélation - Parents",
+         tl.cex = 0.5,
+         diag = FALSE,,
+          mar = c(0, 0, 1.5, 0)) 
+```
+
+# Description de la population
+
+## Naissance
+
+```{r}
+#| label: tbl-naiss
+#| tbl-cap: Naissance
+
+naiss |> 
+  dplyr::select(- c(subjid, naisstermj)) |> 
+  dplyr::select(!ends_with("dte")) |>  
+ tbl_summary(missing = "no",
+              statistic = stt,
+              sort = all_categorical() ~ "frequency",
+             value = list(naisspds_on = "Oui",
+                          grossmult_on = "Oui",
+                          rciu_on = "Oui",
+                          rciufoet_on = "Oui",
+                          rciuplacent_on = "Oui",
+                          neonat_on = "Oui",
+                          uk_on = "Oui"
+                          )) |> 
+   bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "naiss", lg = TRUE) 
+```
+
+## Sortie
+
+```{r}
+#| label: tbl-sortie
+#| tbl-cap: Sortie
+
+sortie |> 
+  dplyr::select(- c(subjid, sortietermj)) |> 
+  dplyr::select(!ends_with("dte")) |>  
+ tbl_summary(missing = "no",
+              statistic = stt,
+              sort = all_categorical() ~ "frequency",
+             value = list(allaithospit_on = "Oui",
+                          allaitsorti_on = "Oui",
+                          consultped_on = "Oui",
+                          pmi_on = "Oui",
+                          emploi_on = "Oui"
+                          )) |> 
+   bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "sortie", lg = TRUE) 
+```
+
+## Parents
+
+```{r}
+#| label: tbl-parents
+#| tbl-cap: parents
+
+parents |> 
+  dplyr::select(- starts_with("subjid")) |> 
+  dplyr::select(!ends_with("dte")) |>  
+ tbl_summary(missing = "no",
+              statistic = stt,
+              sort = all_categorical() ~ "frequency",
+             value = list(q1_on = "Oui",
+                          q2_on = "Oui",
+                          q4_on = "Oui",
+                          q7_on = "Oui",
+                          q9_on = "Oui",
+                          q12_nuit_on = "Oui",
+                          q12_uk_on = "Oui",
+                          q12_dom_on = "Oui",
+                          q12_reunion_on = "Oui",
+                          q12_autr_on = "Oui",
+                          q8_medtrait_on = "Oui",
+                          q1_famille_on = "Oui",
+                          q9_hospitm1_on = "Oui",
+                          q10_hospitm6_on = "Oui",
+                          q11_rgo_on = "Oui",
+                          q11_coliq_on = "Oui",
+                          q11_sang_on = "Oui",
+                          q11_difalim_on = "Oui",
+                          q11_bronchiol_on = "Oui",
+                          q11_asthm_on = "Oui",
+                          q11_pds_on = "Oui"
+                          )) |> 
+   bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "parents", lg = TRUE) 
+```
+
+# Critère principal
+
+*Nombre de nouveau-nés de moins de 2 kilos ré-hospitalisés à 30 jours (J30) de leur sortie du service de néonatologie*
+
+```{r}
+#| label: tbl-princ1
+#| tbl-cap: Réhospitalisations à un mois
+
+parents |> 
+  dplyr::select(q9_hospitm1_on) |> 
+  tbl_summary() |>   bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "princ1", lg = TRUE)  
+```
+
+## Facteurs favorisants
+
+```{r}
+#| label: princi-prepa
+
+ 
+tt <- parents |> 
+  dplyr::select(subjid,q9_hospitm1_on) |>
+  left_join(naiss,"subjid") |> 
+left_join(sortie,"subjid") |> 
+  dplyr::select(!ends_with("dte")) |> 
+ janitor::remove_constant() |> 
+  drop_na(q9_hospitm1_on)
+
+nr <- nrow(tt)
+
+```
+
+Le critère principal (réhospitalisation à un mois) n'est présent que pour `r nr` questionnaires.
+
+```{r}
+#| label: tbl-factprinci1
+#| tbl-cap: facteurs influençant la réhospitalisation à un mois
+
+tt |> 
+  dplyr::select(c(q9_hospitm1_on,naisstermsa, naisspds_on:rciu_on,neonat_on:sortietermsa,allaithospit_on:emploi_on)) |>
+  tbl_summary(
+    missing = "no",
+    by = q9_hospitm1_on,
+     value = list(naisspds_on = "Oui",
+                  grossmult_on = "Oui",
+                  rciu_on = "Oui",
+                  neonat_on = "Oui",
+                  uk_on = "Oui",
+                  allaithospit_on = "Oui",
+                  allaitsorti_on = "Oui",
+                  consultped_on = "Oui",
+                  pmi_on = "Oui",
+                  emploi_on = "Oui"
+      )) |> 
+  bold_labels() |> 
+  add_p(test = ptest) |>
+  bold_p() |>
+   modify_header(label ~ " ") |>
+  gexptabph(exp = expx, nomfich = classeur , nomsheet = "factprinci")
+```
+
+
+```{r}
+#| label: tbl-factprinci2
+#| tbl-cap: facteurs influençant la réhospitalisation à un mois
+  
+glm(q9_hospitm1_on ~ naisstermsa + naisspds_g + naisstail_cm +
+          rciu_on + neonat_on + sortietermsa + allaithospit_on +
+          sortietype + pmi_on, data = tt, family = binomial(link =
+                                                  "logit")) |> 
+  tbl_regression(exponentiate = TRUE) 
+```
+
+
+Le faible nombre de cas ne permet pas de mettre en évidence des
+facteurs de risque de réhospitalisation à un mois. 
+
+# Critères secondaires
+
+## Critère 1, 2, 3
+
+*Mesure du Z-score pour le poids la taille & le périmètre crânien (PC) , mesurés aux visites systématiques réalisées à 2 mois, 4 mois et 11 mois*
+
+En attente
+
+## Critère 4
+*Morbidités*
+
+```{r}
+#| label: tbl-morbidite
+#| tbl-cap: Morbidités
+
+parents |> 
+  dplyr::select(q10_hospitm6_on:q11_autr_on) |>
+  tbl_summary(missing = "no",
+              value = list( q10_hospitm6_on = "Oui",
+                            q11_rgo_on = "Oui",
+                            q11_coliq_on = "Oui",
+                            q11_sang_on = "Oui",
+                            q11_difalim_on = "Oui",
+                            q11_bronchiol_on = "Oui",
+                            q11_asthm_on = "Oui",
+                            q11_pds_on = "Oui"
+                          )) |>
+  bold_labels() |> 
+   modify_header(label ~ " ") |>
+  gexptabph(exp = expx, nomfich = classeur , nomsheet = "morbidite")
+```
+
+## Critère 5
+
+Aucune mort subite n'a été déclarée.
+
+## Critère 6
+*Description du stress parental, des inquiétudes liées au retour à domicile.*
+
+```{r}
+#| label: tbl-stress
+#| tbl-cap: Stress parental, des inquiétudes liées au retour à domicile
+
+zz <- parents |> 
+  dplyr::select(starts_with(c("q4","q7", "q9", "q10", "q13"))) |>
+  tbl_summary(missing = "no",
+              value = list( q4_on = "Oui",
+                            q7_on = "Oui",
+                            q9_hospitm1_on = "Oui",
+                            q9_on = "Oui",
+                            q10_hospitm6_on = "Oui"
+                          )) |>
+  bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "stress")
+```
+
+\clearpage
+
+## Critère 7
+*Description du mode de suivi.*
+
+```{r}
+#| label: tbl-suivi
+#| tbl-cap: "Description du mode de suivi organisé à la sortie"
+
+parents |> 
+  dplyr::select(starts_with(c("q3"))) |>
+  tbl_summary(missing = "no",
+              value = list( q4_on = "Oui",
+                            q7_on = "Oui",
+                            q9_hospitm1_on = "Oui",
+                            q9_on = "Oui",
+                            q10_hospitm6_on = "Oui"
+                          )) |>
+  bold_labels() |> 
+   modify_header(label ~ " ") |>
+  pexptabph(exp = expx, nomfich = classeur , nomsheet = "suivi")
+```
+
+\clearpage
+
+## Critère 8
+*Étude des positions médicales concernant le poids minimal de sortie.*
+
+Les réponses des médecins ne sont pas normées donc inexploitables.
+
+```{r}
+#| label: tbl-medecins
+#| tbl-cap: "Positions médicales concernant le poids minimal de sortie."
+
+medecins |> 
+  dplyr::select(7:22) |>
+    dplyr::select(- risques) |> 
+  tbl_summary(missing = "no",
+              value = list( q4_on = "Oui",
+                            q7_on = "Oui",
+                            q9_hospitm1_on = "Oui",
+                            q9_on = "Oui",
+                            q10_hospitm6_on = "Oui"
+                          )) |>
+  bold_labels() |> 
+   modify_header(label ~ " ") |>
+  gexptabph(exp = expx, nomfich = classeur , nomsheet = "medpoids", lg = TRUE)
+```
+
+```{r}
+#| label: tbl-medrisques
+#| tbl-cap: "Risques liés à la sortie d'un nouveau-né de moins de 2 kilos selon les médecins"
+
+zz <- medecins$risques
+aa <- str_split(zz, ";", simplify = TRUE)
+qq <- tibble(c(aa[,1], aa[,2], aa[,3],aa[,4], aa[,5], aa[,6], aa[,7], aa[,8], aa[,9]))
+names(qq) <- "risques"
+risq <- qq |> 
+  dplyr::filter(risques != "")
+
+risq |> 
+  count(risques, sort = TRUE) |> 
+  kbl(booktabs = T) |> 
+  kable_styling(latex_options = "striped")
+```
+
+```{r}
+#| label: fig-medrisques
+#| fig-cap: "Risques liés à la sortie d'un nouveau-né de moins de 2 kilos selon les médecins"
+
+risq |> 
+  count(risques, sort = TRUE) |> 
+  ggplot(aes(x = reorder(risques, n), y = n)) +
+  geom_col(fill = "steelblue") +
+  coord_flip() +
+  labs(tiltle = "Risques liés à la sortie d'un nouveau-né de moins de 2 kilos selon les médecins",
+       x = "Risques",
+       y = "Nombre de réponses (n = 47)") +
+   scale_x_discrete(labels = label_wrap(30)) +
+  theme_light()
+```
+
+
+
+
+## Critère 9
+*Caractéristiques cliniques* 
+```{r}
+#| label: tbl-clini
+#| tbl-cap: "Caractéristiques cliniques."
+
+naiss |> 
+  dplyr::select(naisstermsa,naisspds_on:naisstail_cm, rea_on,
+               rciu_on:rciuplacent_on) |> 
+  tbl_summary(missing = "no",
+              value = list( naisspds_on = "Oui",
+                            rciu_on = "Oui",
+                            rciufoet_on = "Oui",
+                            rciuplacent_on = "Oui"
+                          )) |>
+  bold_labels() |> 
+   modify_header(label ~ " ") |>
+  gexptabph(exp = expx, nomfich = classeur , nomsheet = "clini")
+```

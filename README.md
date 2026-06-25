@@ -14,7 +14,7 @@
 
 -  11/06/2026 **Plan d'analyse statistique V2.0**
 
-**PetitPoids_rapport** rapport statistique pour une sortie en html.
+- 25/06/2026 **Rapport statistique V0.9** sans les calculs sur les Z-scores.
 
 \*\*PtPoids_rapport2\* rapport statistique (incomplet) pour une sortie en pdf en lien avec `_quarto.yaml`.
 
