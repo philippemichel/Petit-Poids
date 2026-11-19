@@ -18,4 +18,4 @@
 
 \*\*PtPoids_rapport2\* rapport statistique (incomplet) pour une sortie en pdf en lien avec `_quarto.yaml`.
 
-**xscore** R Calcul des Z-score (poids, taille, PC) pour chaque patient en fonction de l'âge & du sexe, selon les courbes de l'OMS. Les données sont dans des tables créées avec les fonctions contenues dans **xscore-calc.R**. Si quelqu'un a les tables (et non les courbes) de l'OMS avec les données de référence, je suis preneur.
+**xscore** R Calcul des Z-scores (poids, taille, PC) pour chaque patient en fonction de l'âge & du sexe, selon les courbes de l'OMS. Les données sont dans des tables créées avec les fonctions contenues dans **xscore-calc.R**. Si quelqu'un a les tables (et non les courbes) de l'OMS avec les données de référence, je suis preneur.

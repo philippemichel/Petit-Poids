@@ -72,19 +72,19 @@ parents <- left_join(p1, p2, by = "subjid2") |>
 
 # Visites
 
-v2m <- read_ods("datas/2MOIS.ods", sheet = 1, na = c("", " ", "NA", "K", "D", "Non disponible")) |>
+v2m <- read_ods("datas/consults.ods", sheet = 1, na = nn) |>
   clean_names() |>
   mutate(across(ends_with("dte"), dmy)) |>
   mutate(across(is.character, as.factor)) |>
   mutate(visite = "2 mois")
 
-v4m <- read_ods("datas/4MOIS.ods", sheet = 1, na = c("", " ", "NA", "K", "D", "Non disponible")) |>
+v4m <- read_ods("datas/consults.ods", sheet = 2, na = nn) |>
   clean_names() |>
   mutate(across(ends_with("dte"), dmy)) |>
   mutate(across(is.character, as.factor)) |>
   mutate(visite = "4 mois")
 
-v11m <- read_ods("datas/11MOIS.ods", sheet = 1, na = c("", " ", "NA", "K", "D", "Non disponible")) |>
+v11m <- read_ods("datas/consults.ods", sheet = 3, na = nn) |>
   clean_names() |>
   mutate(across(ends_with("dte"), dmy)) |>
   mutate(across(is.character, as.factor)) |>
@@ -95,7 +95,7 @@ visites <- bind_rows(v2m, v4m, v11m) |>
   janitor::remove_empty(c("rows", "cols")) |>
   mutate(subjid = paste(subjid, str_sub(visite, -4), sep = "_"))
 
-bn <- read_ods("datas/2MOIS.ods", sheet = 2, na = nn)
+bn <- read_ods("datas/consults.ods", sheet = 4, na = nn)
 var_label(visites) <- c(bn$nom, "visite")
 
 # Médecins
